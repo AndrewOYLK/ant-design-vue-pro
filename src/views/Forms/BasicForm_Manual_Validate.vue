@@ -1,5 +1,5 @@
 <template>
-  <a-form :layout="formLayout" :form="form">
+  <a-form :layout="formLayout">
     <a-form-item
       label="Form Layout"
       :label-col="formItemLayout.labelCol"
@@ -18,24 +18,17 @@
       label="Field A"
       :label-col="formItemLayout.labelCol"
       :wrapper-col="formItemLayout.wrapperCol"
+      :validateStatus="fieldAStatus"
+      :help="fieldAHelp"
     >
-      <a-input
-        v-decorator="[
-          'fieldA',
-          {
-            initialValue: fieldA,
-            rules: [{ required: true, min: 6, message: '必须大于5个字符' }],
-          },
-        ]"
-        placeholder="input placeholder"
-      />
+      <a-input v-model="fieldA" placeholder="input placeholder" />
     </a-form-item>
     <a-form-item
       label="Field B"
       :label-col="formItemLayout.labelCol"
       :wrapper-col="formItemLayout.wrapperCol"
     >
-      <a-input v-decorator="['fieldB']" placeholder="input placeholder" />
+      <a-input v-model="fieldB" placeholder="input placeholder" />
     </a-form-item>
     <a-form-item :wrapper-col="buttonItemLayout.wrapperCol">
       <a-button type="primary" @click="handleSubmit"> Submit </a-button>
@@ -46,17 +39,24 @@
 <script>
 export default {
   data() {
-    this.form = this.$form.createForm(this);
     return {
       formLayout: "horizontal",
-      fieldA: "hello",
+      fieldA: "",
       fieldB: "",
+      fieldAStatus: "",
+      fieldAHelp: "",
     };
   },
-  mounted() {
-    setTimeout(() => {
-      this.form.setFieldsValue({ fieldA: "hello world" });
-    }, 3000);
+  watch: {
+    fieldA(val) {
+      if (val.length <= 5) {
+        this.fieldAStatus = "error";
+        this.fieldAHelp = "必须大于5个字符";
+      } else {
+        this.fieldAStatus = "";
+        this.fieldAHelp = "";
+      }
+    },
   },
   computed: {
     formItemLayout() {
@@ -82,14 +82,15 @@ export default {
       this.formLayout = e.target.value;
     },
     handleSubmit() {
-      this.form.validateFields((err, values) => {
-        if (!err) {
-          console.log(values);
-          // this.fieldA = values.fieldA;
-          Object.assign(this, values);
-        }
-      });
-      // console.log(this.fieldA, this.fieldB)
+      if (this.fieldA.length <= 5) {
+        this.fieldAStatus = "error";
+        this.fieldAHelp = "必须大于5个字符";
+      } else {
+        console.log({
+          fieldA: this.fieldA,
+          fieldB: this.fieldB,
+        });
+      }
     },
   },
 };
